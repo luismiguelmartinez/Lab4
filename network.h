@@ -14,9 +14,10 @@ public:
     Network();
     void addRouter(string id, Router router);
     void removeRouter(string id);
-    bool routerAvailable(string id);
+    bool routerIdAvailable(string id);
     map<string, Router> getRouters() const;
-    void optimalRoute(string origin, string destination, int *weight, string *route);
+    void getOptimalRoute(string origin, string destination, int *weight, string *route);
+    map <string, int> getOptimalRouteTable(string id);
 };
 
 #endif // NETWORK_H

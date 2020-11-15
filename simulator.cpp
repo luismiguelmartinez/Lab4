@@ -121,7 +121,7 @@ void Simulator::menu()
     cout << "b) Remover router" << endl;
     cout << "c) Visualisar tablas de red" << endl;
     cout << "d) Ruta optima para enviar un paquete" << endl;
-    cout << "d) Volver al menu principal" << endl;
+    cout << "e) Volver al menu principal" << endl;
     cout << endl;
     cout << "Opcion: ";
 
@@ -132,12 +132,12 @@ void Simulator::menu()
     case 'a':
     {
         string id;
-        cout << "Ingrese nombre del router: ";
+        cout << "Ingrese ID del router: ";
         cin >> id;
 
-        if (network.routerAvailable(id)) {
+        if (network.routerIdAvailable(id)) {
 
-            cout << endl << endl << "Ingrese peso para el enlace entre routers si no se conectan directamente ingrese x " << endl;
+            cout << endl << endl << "Ingrese peso para el enlace entre routers si no se conectan o no directamente ingrese x " << endl;
 
             map <string, Router>::iterator it;
             map <string, int> routeTable;
@@ -156,12 +156,12 @@ void Simulator::menu()
                     routeTable[it->first] = atoi(value.c_str());
             }
 
-            network.addRouter(id, Router(routeTable));
+            network.addRouter(id, Router(id, routeTable));
 
             cout << endl << "Router agregado con exito" << endl;
 
         } else {
-            cout << "El nombre ingresado ya existe en la red" << endl;
+            cout << "El ID ingresado ya se encuentra asignado" << endl;
             menu();
         }
     }
@@ -173,14 +173,14 @@ void Simulator::menu()
         cout << "Ingrese nombre del router a remover: ";
         cin >> id;
 
-        if (network.routerAvailable(id)) {
+        if (!network.routerIdAvailable(id)) {
 
             network.removeRouter(id);
-
             cout << endl << "Router removido con exito" << endl;
 
         } else {
-            cout << "El nombre ingresado no existe en la red" << endl;
+
+            cout << "El ID ingresado no existe en la red" << endl;
             menu();
         }
     }
@@ -189,23 +189,74 @@ void Simulator::menu()
     case 'c':
     {
         string id;
-        cout << "Ingrese nombre del router del cual quiere ver la tabla: ";
+        cout << "Ingrese ID del router del cual quiere ver la tabla: ";
         cin >> id;
 
-        if (network.routerAvailable(id)) {
+        if (!network.routerIdAvailable(id)) {
 
-            network.removeRouter(id);
+            map <string, int>::iterator it;
 
-            cout << endl << "Router removido con exito" << endl;
+            cout << endl << "Tabla router " << id << endl << endl;
+
+            for (it = network.getRouters()[id].getRouteTable().begin(); it != network.getRouters()[id].getRouteTable().end(); it++)
+                cout << id << "->" << it->first << " " << it->second << endl;
+
+            cout << endl << endl << "Tabla optimizada para router " << id << endl << endl;
+
+            map <string, int> optimalRouteTable = network.getOptimalRouteTable(id);
+            map <string, int>::iterator it2;
+
+            for (it2 = optimalRouteTable.begin(); it2 != optimalRouteTable.end(); it2++)
+                cout << id << "->" << it->first << " " << it->second << endl;
 
         } else {
-            cout << "El router ingresado no existe en la red" << endl;
+
+            cout << "El ID ingresado no existe en la red" << endl;
             menu();
         }
     }
         break;
 
     case 'd':
+    {
+        string origin, route;
+        int weight;
+
+        cout << "Ingrese ID de origen: ";
+        cin >> origin;
+
+        if (!network.routerIdAvailable(origin)) {
+
+            string destination;
+            cout << "Ingrese ID de destino: ";
+            cin >> destination;
+
+            if (!network.routerIdAvailable(destination)) {
+
+                network.getOptimalRoute(origin, destination, &weight, &route);
+
+                cout << "Ruta optima: " << route << endl;
+                cout << "Costo: " << weight << endl;
+
+            } else {
+
+                cout << "El ID " << destination << " no existe en la red" << endl;
+                menu();
+            }
+
+        } else {
+
+            cout << "El ID " << origin << " no existe en la red" << endl;
+            menu();
+        }
+    }
+        break;
+
+    case 'e':
+    {
+        network.getRouters().clear();
+        start();
+    }
         break;
 
     default:

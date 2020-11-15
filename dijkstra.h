@@ -12,6 +12,8 @@ class Dijkstra
     std::string route;
     bool Visited;
 
+    string findMinValue(map <string, Dijkstra> *step);
+
 public:
     Dijkstra();
     Dijkstra(int charge, string preNode);
