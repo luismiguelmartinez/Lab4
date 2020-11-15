@@ -135,23 +135,24 @@ Network::Network()
 
 void Network::addRouter(char id, Router router)
 {
+    map <char, Router>::iterator it;
+
+    for (it = Routers.begin(); it != Routers.end(); it++)
+        it->second.addNode(id, router.getRouteTable()[it->first]);
+
     Routers[id] = router;
 }
 
 void Network::removeRouter(char id)
 {
-    map <char, Router>::iterator router;
-    map <char, int>::iterator node;
+    map <char, Router>::iterator it;
 
-    for (router = Routers.begin(); router != Routers.end(); router++) {
+    for (it = Routers.begin(); it != Routers.end(); it++) {
 
-        for (node = router->second.getRouteTable().begin(); node != router->second.getRouteTable().end(); node++) {
-
-            if (node->first == id) {
-                router->second.removeNode(id);
-                break;
-            }
-        }
+        if (it->first == id)
+            Routers.erase(it);
+        else
+           it->second.removeNode(id);
     }
 }
 

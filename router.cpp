@@ -1,14 +1,5 @@
 #include "router.h"
 
-char Router::getId() const
-{
-    return ID;
-}
-
-void Router::setId(char id)
-{
-    ID = id;
-}
 
 void Router::addNode(char node, int value)
 {
@@ -38,18 +29,7 @@ Router::Router()
 
 }
 
-Router::Router(char id)
-{
-    ID = id;
-}
-
 Router::Router(map<char, int> table)
 {
-    RouteTable = table;
-}
-
-Router::Router(char id, map<char, int> table)
-{
-    ID = id;
     RouteTable = table;
 }
