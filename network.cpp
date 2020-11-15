@@ -1,16 +1,16 @@
 #include "network.h"
 
 
-map<char, Router> Network::getRouters() const
+map<string, Router> Network::getRouters() const
 {
     return Routers;
 }
 
-void Network::optimalRoute(char origin, char destination, int *weight, string *route)
+void Network::optimalRoute(string origin, string destination, int *weight, string *route)
 {
-    map <char, Router>::iterator router;
-    map <char, int>::iterator node;
-    map <char, Dijkstra> stepA, stepB;
+    map <string, Router>::iterator router;
+    map <string, int>::iterator node;
+    map <string, Dijkstra> stepA, stepB;
 
     for (unsigned i = 0; i < Routers.size(); i++) {
 
@@ -33,9 +33,9 @@ void Network::optimalRoute(char origin, char destination, int *weight, string *r
             }
         } else {
 
-            map <char, Dijkstra>::iterator it;
+            map <string, Dijkstra>::iterator it;
 
-            char lastTag = findMinValue(&stepA);
+            string lastTag = findMinValue(&stepA);
             stepA[lastTag].setVisited(true);
 
             for (it = stepA.begin(); it != stepA.end(); it++) {
@@ -84,7 +84,7 @@ void Network::optimalRoute(char origin, char destination, int *weight, string *r
     *weight = stepA[destination].getCharge();
 
     //Ruta optima
-    char aux = destination;
+    string aux = destination;
 
     *route = aux;
 
@@ -102,11 +102,11 @@ void Network::optimalRoute(char origin, char destination, int *weight, string *r
     }
 }
 
-char Network::findMinValue(map<char, Dijkstra> *weightTable)
+string Network::findMinValue(map<string, Dijkstra> *weightTable)
 {
     int aux;
-    char node;
-    map <char, Dijkstra>::iterator it;
+    string node;
+    map <string, Dijkstra>::iterator it;
 
     for (it = weightTable->begin(); it != weightTable->end(); it++) {
 
@@ -133,9 +133,9 @@ Network::Network()
 
 }
 
-void Network::addRouter(char id, Router router)
+void Network::addRouter(string id, Router router)
 {
-    map <char, Router>::iterator it;
+    map <string, Router>::iterator it;
 
     for (it = Routers.begin(); it != Routers.end(); it++)
         it->second.addNode(id, router.getRouteTable()[it->first]);
@@ -143,9 +143,9 @@ void Network::addRouter(char id, Router router)
     Routers[id] = router;
 }
 
-void Network::removeRouter(char id)
+void Network::removeRouter(string id)
 {
-    map <char, Router>::iterator it;
+    map <string, Router>::iterator it;
 
     for (it = Routers.begin(); it != Routers.end(); it++) {
 
@@ -156,9 +156,9 @@ void Network::removeRouter(char id)
     }
 }
 
-bool Network::routerAvailable(char id)
+bool Network::routerAvailable(string id)
 {
-    map <char, Router>::iterator it;
+    map <string, Router>::iterator it;
 
     for (it = Routers.begin(); it != Routers.end(); it++) {
 

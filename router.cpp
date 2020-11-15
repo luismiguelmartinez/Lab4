@@ -1,14 +1,14 @@
 #include "router.h"
 
 
-void Router::addNode(char node, int value)
+void Router::addNode(string node, int value)
 {
     RouteTable[node] = value;
 }
 
-void Router::removeNode(char node)
+void Router::removeNode(string node)
 {
-    map <char, int>::iterator it;
+    map <string, int>::iterator it;
 
     for (it = RouteTable.begin(); it != RouteTable.end(); it++) {
 
@@ -19,9 +19,19 @@ void Router::removeNode(char node)
     }
 }
 
-map<char, int> Router::getRouteTable() const
+map<string, int> Router::getRouteTable() const
 {
     return RouteTable;
+}
+
+string Router::getID() const
+{
+    return ID;
+}
+
+void Router::setID(const string &value)
+{
+    ID = value;
 }
 
 Router::Router()
@@ -29,7 +39,13 @@ Router::Router()
 
 }
 
-Router::Router(map<char, int> table)
+Router::Router(map<string, int> table)
 {
+    RouteTable = table;
+}
+
+Router::Router(string id, map<string, int> table)
+{
+    ID = id;
     RouteTable = table;
 }

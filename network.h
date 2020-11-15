@@ -4,21 +4,19 @@
 #include <router.h>
 #include <dijkstra.h>
 
-using namespace std;
-
 class Network
 {
 private:
-    map <char, Router> Routers;
-    char findMinValue(map <char, Dijkstra> *step);
+    map <string, Router> Routers;
+    string findMinValue(map <string, Dijkstra> *step);
 
 public:
     Network();
-    void addRouter(char id, Router router);
-    void removeRouter(char id);
-    bool routerAvailable(char id);
-    map<char, Router> getRouters() const;
-    void optimalRoute(char origin, char destination, int *weight, string *route);
+    void addRouter(string id, Router router);
+    void removeRouter(string id);
+    bool routerAvailable(string id);
+    map<string, Router> getRouters() const;
+    void optimalRoute(string origin, string destination, int *weight, string *route);
 };
 
 #endif // NETWORK_H

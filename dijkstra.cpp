@@ -10,12 +10,12 @@ void Dijkstra::setCharge(int value)
     Charge = value;
 }
 
-char Dijkstra::getPreNode() const
+string Dijkstra::getPreNode() const
 {
     return PreNode;
 }
 
-void Dijkstra::setPreNode(char value)
+void Dijkstra::setPreNode(string value)
 {
     PreNode = value;
 }
@@ -35,14 +35,14 @@ Dijkstra::Dijkstra()
 
 }
 
-Dijkstra::Dijkstra(int charge, char preNode)
+Dijkstra::Dijkstra(int charge, string preNode)
 {
     Charge = charge;
     PreNode = preNode;
     Visited = false;
 }
 
-Dijkstra::Dijkstra(int charge, char preNode, bool visited)
+Dijkstra::Dijkstra(int charge, string preNode, bool visited)
 {
     Charge = charge;
     PreNode = preNode;

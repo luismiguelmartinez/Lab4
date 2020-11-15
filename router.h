@@ -7,16 +7,18 @@ using namespace std;
 
 class Router
 {
-    map <char, int> RouteTable;
+    string ID;
+    map <string, int> RouteTable;
 
 public:
     Router();
-    Router(map <char, int> table);
-    char getId() const;
-    void setId(char id);
-    void addNode(char node, int value);
-    void removeNode(char node);
-    map<char, int> getRouteTable() const;
+    Router(map <string, int> table);
+    Router(string id, map<string, int> table);
+    void addNode(string node, int value);
+    void removeNode(string node);
+    map<string, int> getRouteTable() const;
+    string getID() const;
+    void setID(const string &value);
 };
 
 #endif // ROUTER_H

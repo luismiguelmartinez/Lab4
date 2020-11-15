@@ -3,23 +3,23 @@
 
 #include <string>
 
-
+using namespace std;
 
 class Dijkstra
 {
     int Charge;
-    char PreNode;
+    string PreNode;
     std::string route;
     bool Visited;
 
 public:
     Dijkstra();
-    Dijkstra(int charge, char preNode);
-    Dijkstra(int charge, char preNode, bool visited);
+    Dijkstra(int charge, string preNode);
+    Dijkstra(int charge, string preNode, bool visited);
     int getCharge() const;
     void setCharge(int value);
-    char getPreNode() const;
-    void setPreNode(char value);
+    string getPreNode() const;
+    void setPreNode(string value);
     bool getVisited() const;
     void setVisited(bool value);
 };
