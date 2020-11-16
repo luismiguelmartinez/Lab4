@@ -16,7 +16,7 @@ public:
     Router(string id, map<string, int> table);
     void addNode(string node, int value);
     void removeNode(string node);
-    map<string, int> getRouteTable() const;
+    map<string, int> *getRouteTableAddress();
     string getID() const;
     void setID(const string &value);
 };

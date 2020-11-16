@@ -19,9 +19,9 @@ void Router::removeNode(string node)
     }
 }
 
-map<string, int> Router::getRouteTable() const
+map<string, int> *Router::getRouteTableAddress()
 {
-    return RouteTable;
+    return &RouteTable;
 }
 
 string Router::getID() const

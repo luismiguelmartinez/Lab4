@@ -1,16 +1,16 @@
 #include "network.h"
 
 
-map<string, Router> Network::getRouters() const
+map<string, Router> *Network::getRoutersAddress()
 {
-    return Routers;
+    return &Routers;
 }
 
 void Network::getOptimalRoute(string origin, string destination, int *weight, string *route)
 {
     map <string, Router>::iterator it1;
 
-    map <string, int> routeTable;
+    map <string, int> *routeTable;
     map <string, int>::iterator it2;
 
     map <string, Dijkstra> stepA, stepB;
@@ -19,9 +19,9 @@ void Network::getOptimalRoute(string origin, string destination, int *weight, st
 
         if (i == 0) {
 
-            routeTable = Routers[origin].getRouteTable();
+            routeTable = Routers[origin].getRouteTableAddress();
 
-            for (it2 = routeTable.begin(); it2 != routeTable.end(); it2++) {
+            for (it2 = routeTable->begin(); it2 != routeTable->end(); it2++) {
 
                 if (it2->first == origin){
                     stepA[it2->first] = Dijkstra(it2->second, origin, true);
@@ -36,7 +36,7 @@ void Network::getOptimalRoute(string origin, string destination, int *weight, st
             string def_tag = findMinValue(&stepA);
             stepA[def_tag].setVisited(true);
 
-            routeTable = Routers[def_tag].getRouteTable();
+            routeTable = Routers[def_tag].getRouteTableAddress();
 
             for (it = stepA.begin(); it != stepA.end(); it++) {
 
@@ -46,11 +46,11 @@ void Network::getOptimalRoute(string origin, string destination, int *weight, st
                     //si aparece un numero negativo significa que aun no hay una ruta hacia ese router
                     if (it->second.getCharge() > 0) {
 
-                        //Se debe verificar que haya coneccion entre los dos nodos para esto en la tabla de ruteo el
-                        //valor debe ser mayor a cero
-                        if (routeTable[it->first] > 0) {
+                        // Se debe verificar que haya coneccion entre los dos nodos, para esto se debe ver en la tabla
+                        // de ruteo el valor que viene, y este debe ser diferente de -1
+                        if (routeTable->at(it->first) > 0) {
 
-                            int weight = stepA[def_tag].getCharge() + routeTable[it->first];
+                            int weight = stepA[def_tag].getCharge() + routeTable->at(it->first);
 
                             // Si la eqtiqueta calculada actual es menor o igual que la anterior se reemplaza
                             //si no se sigue con la que se tenia
@@ -71,12 +71,12 @@ void Network::getOptimalRoute(string origin, string destination, int *weight, st
                         //se calcula el peso y se llevan los repectivos datos al sigiente paso o si es menor que cero se
                         //sigue con el mismo valor menor a cero para aclarar que aun no hay una ruta hacia ese nodo
 
-                        if (routeTable[it->first] < 0) {
+                        if (routeTable->at(it->first) < 0) {
 
                             stepB[it->first] = stepA[it->first];
                         } else {
 
-                            int weight = stepA[def_tag].getCharge() + routeTable[it->first];
+                            int weight = stepA[def_tag].getCharge() + routeTable->at(it->first);
                             stepB[it->first] = Dijkstra(weight, def_tag);
                         }
                     }
@@ -95,7 +95,7 @@ void Network::getOptimalRoute(string origin, string destination, int *weight, st
             stepB.clear();
         }
 
-        routeTable.clear();
+        routeTable->clear();
     }
 
     // Costo de la ruta
@@ -115,7 +115,7 @@ map<string, int> Network::getOptimalRouteTable(string id)
 {
     map <string, Router>::iterator it1;
 
-    map <string, int> routeTable;
+    map <string, int> *routeTable;
     map <string, int>::iterator it2;
 
     map <string, Dijkstra> stepA, stepB;
@@ -124,9 +124,9 @@ map<string, int> Network::getOptimalRouteTable(string id)
 
         if (i == 0) {
 
-            routeTable = Routers[id].getRouteTable();
+            routeTable = Routers[id].getRouteTableAddress();
 
-            for (it2 = routeTable.begin(); it2 != routeTable.end(); it2++) {
+            for (it2 = routeTable->begin(); it2 != routeTable->end(); it2++) {
 
                 if (it2->first == id){
                     stepA[it2->first] = Dijkstra(it2->second, id, true);
@@ -141,7 +141,7 @@ map<string, int> Network::getOptimalRouteTable(string id)
             string def_tag = findMinValue(&stepA);
             stepA[def_tag].setVisited(true);
 
-            routeTable = Routers[def_tag].getRouteTable();
+            routeTable = Routers[def_tag].getRouteTableAddress();
 
             for (it = stepA.begin(); it != stepA.end(); it++) {
 
@@ -151,11 +151,11 @@ map<string, int> Network::getOptimalRouteTable(string id)
                     //si aparece un numero negativo significa que aun no hay una ruta hacia ese router
                     if (it->second.getCharge() > 0) {
 
-                        //Se debe verificar que haya coneccion entre los dos nodos para esto en la tabla de ruteo el
-                        //valor debe ser mayor a cero
-                        if (routeTable[it->first] > 0) {
+                        // Se debe verificar que haya coneccion entre los dos nodos, para esto se debe ver en la tabla
+                        // de ruteo el valor que viene, y este debe ser diferente de -1
+                        if (routeTable->at(it->first) > 0) {
 
-                            int weight = stepA[def_tag].getCharge() + routeTable[it->first];
+                            int weight = stepA[def_tag].getCharge() + routeTable->at(it->first);
 
                             // Si la eqtiqueta calculada actual es menor o igual que la anterior se reemplaza
                             //si no se sigue con la que se tenia
@@ -176,12 +176,12 @@ map<string, int> Network::getOptimalRouteTable(string id)
                         //se calcula el peso y se llevan los repectivos datos al sigiente paso o si es menor que cero se
                         //sigue con el mismo valor menor a cero para aclarar que aun no hay una ruta hacia ese nodo
 
-                        if (routeTable[it->first] < 0) {
+                        if (routeTable->at(it->first) < 0) {
 
                             stepB[it->first] = stepA[it->first];
                         } else {
 
-                            int weight = stepA[def_tag].getCharge() + routeTable[it->first];
+                            int weight = stepA[def_tag].getCharge() + routeTable->at(it->first);
                             stepB[it->first] = Dijkstra(weight, def_tag);
                         }
                     }
@@ -200,7 +200,7 @@ map<string, int> Network::getOptimalRouteTable(string id)
             stepB.clear();
         }
 
-        routeTable.clear();
+        routeTable->clear();
     }
 
     map <string, int> optimalRouteTable;
@@ -229,7 +229,7 @@ string Network::findMinValue(map<string, Dijkstra> *weightTable)
 
     //si no se encontro algun valor como minimo significa que el
     //router no esta conectado a ningun otro
-    //TODO: "no se tiene control cuando un nodo no esta conectado a los demas";
+
     if (aux == -1) {
         node = weightTable->begin()->first;
         return node;
@@ -255,9 +255,11 @@ void Network::addRouter(string id, Router router)
 {
     map <string, Router>::iterator it;
 
+    //Se actualiza la tabla de cada router agregandole a todos ellos el nuevo ID y costo hacia este
     for (it = Routers.begin(); it != Routers.end(); it++)
-        it->second.addNode(id, router.getRouteTable()[it->first]);
+        it->second.addNode(id, router.getRouteTableAddress()->at(it->first));
 
+    //se agrega el nuevo router con su respectiva tabla
     Routers[id] = router;
 }
 
@@ -265,6 +267,9 @@ void Network::removeRouter(string id)
 {
     map <string, Router>::iterator it;
 
+    // Se recorre todo el map de routers, para el router que se desea eliminar se entrega
+    // el iterador a la funcion Routers.erase que se encarga de eliminar ese elemento en
+    // el mapa, para todos los demas se hara un proceso analogo pero eliminando ese nodo
     for (it = Routers.begin(); it != Routers.end(); it++) {
 
         if (it->first == id)
@@ -278,6 +283,8 @@ bool Network::routerIdAvailable(string id)
 {
     map <string, Router>::iterator it;
 
+    // Funcion que verifica si un ID se encuentra disponible en la red para asignarlo
+    // se puede utilizar de manera inversa (!) para sber si un router existe en la red
     for (it = Routers.begin(); it != Routers.end(); it++) {
 
         if (it->first == id)

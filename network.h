@@ -15,7 +15,7 @@ public:
     void addRouter(string id, Router router);
     void removeRouter(string id);
     bool routerIdAvailable(string id);
-    map<string, Router> getRouters() const;
+    map<string, Router> *getRoutersAddress();
     void getOptimalRoute(string origin, string destination, int *weight, string *route);
     map <string, int> getOptimalRouteTable(string id);
 };
