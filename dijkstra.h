@@ -9,10 +9,7 @@ class Dijkstra
 {
     int Charge;
     string PreNode;
-    std::string route;
     bool Visited;
-
-    string findMinValue(map <string, Dijkstra> *step);
 
 public:
     Dijkstra();
