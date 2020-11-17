@@ -14,6 +14,7 @@ private:
     void loadNetwork();
     void dataToRouter(string data, string *id, map<string, int> *routingTable);
     void menu();
+    void checkRoutersQuantity();
 
 public:
     Simulator();

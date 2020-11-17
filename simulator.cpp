@@ -41,16 +41,21 @@ void Simulator::loadNetwork()
             cout << "Error inesperado" << endl;
     }
 
+    if (network.getRoutersAddress()->size() == 0) {
 
-    if(network.getRoutersAddress()->size() > 1)
+        cout << endl << "No existen datos de una red en el archivo" << endl;
+        start();
+    } else if (network.getRoutersAddress()->size() == 1) {
+
+        cout << "Cantidad de routers actuales: " << network.getRoutersAddress()->size() << endl;
         menu();
-    else
-        cout << endl << "No se encontraron datos de una red en el archivo" << endl;
+    } else
+        menu();
 }
 
 void Simulator::dataToRouter(string data, string *id, map <string, int> *routingTable)
 {
-    bool lastNode;
+    bool extractData = true;
     string aux1, aux2;
 
 
@@ -65,7 +70,7 @@ void Simulator::dataToRouter(string data, string *id, map <string, int> *routing
     }
 
 
-    while (true) {
+    while (extractData) {
 
         for (unsigned i = 0; i < data.length(); i++) {
 
@@ -98,13 +103,13 @@ void Simulator::dataToRouter(string data, string *id, map <string, int> *routing
         for (unsigned i = 0; i < data.length(); i++) {
 
             if (data.substr(i, 1) == ";") {
-                lastNode = false;
+                extractData = true;
                 break;
             } else
-                lastNode = true;
+                extractData = false;
         }
 
-        if (lastNode)
+        if (data.length() == 0)
             break;
 
         aux1.clear();
@@ -114,21 +119,21 @@ void Simulator::dataToRouter(string data, string *id, map <string, int> *routing
 
 void Simulator::menu()
 {
-    char option;
-    cout << endl << " >>>  Ingrese una opcion  <<< " << endl;
+    while (true) {
 
-    cout << endl;
-    cout << "a) Agregar router" << endl;
-    cout << "b) Remover router" << endl;
-    cout << "c) Visualizar tablas de red" << endl;
-    cout << "d) Ruta optima para enviar un paquete" << endl;
-    cout << "e) Volver al menu principal" << endl;
-    cout << endl;
-    cout << "Opcion: ";
+        char option;
+        cout << endl << " >>>  Ingrese una opcion  <<< " << endl;
 
-    cin >> option;
+        cout << endl;
+        cout << "a) Agregar router" << endl;
+        cout << "b) Remover router" << endl;
+        cout << "c) Visualizar tablas de red" << endl;
+        cout << "d) Ruta optima para enviar un paquete" << endl;
+        cout << "e) Volver al menu principal" << endl;
+        cout << endl;
+        cout << "Opcion: ";
 
-    if (network.getRoutersAddress()->size() > 1) {
+        cin >> option;
 
         switch(option) {
 
@@ -140,7 +145,12 @@ void Simulator::menu()
 
             if (network.routerIdAvailable(id)) {
 
-                cout << endl << endl << "Ingrese peso para el enlace entre routers\nsi no se conectan o no directamente ingrese x " << endl << endl;
+                if (network.getRoutersAddress()->size() > 1)
+                    cout << endl << endl << "Ingrese peso para el enlace entre routers"
+                                            "\nsi no se conectan o no directamente ingrese x " << endl << endl;
+                else
+                    cout << endl << "Se debe ingresar mas routers para empezar a agregar costos entre enlaces" << endl;
+
 
                 map <string, Router> *routers = network.getRoutersAddress();
                 map <string, Router>::iterator it;
@@ -165,18 +175,17 @@ void Simulator::menu()
 
                 network.addRouter(id, Router(routeTable));
 
-                cout << endl << "Router agregado con exito" << endl;
-                menu();
+                cout << endl << " **/ Router agregado con exito /** " << endl;
 
-            } else {
+            } else
                 cout << endl << "El ID ingresado ya se encuentra asignado" << endl;
-                menu();
-            }
         }
             break;
 
         case 'b':
         {
+            checkRoutersQuantity();
+
             string id;
             cout << "Ingrese ID de router a remover: ";
             cin >> id;
@@ -185,18 +194,16 @@ void Simulator::menu()
 
                 network.removeRouter(id);
                 cout << endl << "Router removido con exito" << endl;
-                menu();
 
-            } else {
-
+            } else
                 cout << endl << "El ID ingresado no existe en la red" << endl;
-                menu();
-            }
         }
             break;
 
         case 'c':
         {
+            checkRoutersQuantity();
+
             string id;
             cout << "Ingrese ID del router para el cual desea visualizar la tabla: ";
             cin >> id;
@@ -227,19 +234,15 @@ void Simulator::menu()
                     else
                         cout << id << "->" << it->first << " x" << endl;
                 }
-
-                menu();
-
-            } else {
-
+            } else
                 cout << endl << "El ID de router ingresado no existe en la red" << endl;
-                menu();
-            }
         }
             break;
 
         case 'd':
         {
+            checkRoutersQuantity();
+
             string origin, route;
             int weight;
 
@@ -258,19 +261,13 @@ void Simulator::menu()
 
                     cout << endl << "Ruta optima: " << route << endl;
                     cout << "Costo: " << weight << endl;
-                    menu();
 
-                } else {
 
+                } else
                     cout << endl << "El ID " << destination << " no existe en la red" << endl;
-                    menu();
-                }
 
-            } else {
-
+            } else
                 cout << endl << "El ID " << origin << " no existe en la red" << endl;
-                menu();
-            }
         }
             break;
 
@@ -283,17 +280,22 @@ void Simulator::menu()
 
         default:
             cout << "Opcion no valida" << endl;
-            menu();
-
         }
-    } else if (network.getRoutersAddress()->size() == 0) {
+    }
+}
+
+void Simulator::checkRoutersQuantity()
+{
+    if (network.getRoutersAddress()->size() == 0) {
 
         cout << endl << "No hay routers en la red" << endl;
         cout << "Cantidad de routers actuales: " << network.getRoutersAddress()->size() << endl;
-    } else {
+        menu();
+    } else if (network.getRoutersAddress()->size() == 1) {
 
         cout << endl << "Debe de existir mas de un router en la red" << endl;
         cout << "Cantidad de routers actuales: " << network.getRoutersAddress()->size() << endl;
+        menu();
     }
 }
 
