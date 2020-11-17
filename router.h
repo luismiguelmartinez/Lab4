@@ -7,7 +7,7 @@ using namespace std;
 
 class Router
 {
-    map <string, int> RouteTable;
+    map <string, int> RoutingTable;
 
 public:
     Router();
@@ -16,6 +16,7 @@ public:
     void removeNode(string node);
     map<string, int> *getRouteTableAddress();
     string getID() const;
+    void setWeightNode(string *id, int *weight);
 };
 
 #endif // ROUTER_H

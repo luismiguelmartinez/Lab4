@@ -18,6 +18,7 @@ public:
     map<string, Router> *getRoutersAddress();
     void getOptimalRoute(string origin, string destination, int *weight, string *route);
     map <string, int> getOptimalRouteTable(string id);
+    void setLinkCost(string *origin, string *destination, int weight);
 };
 
 #endif // NETWORK_H

@@ -127,9 +127,10 @@ void Simulator::menu()
         cout << endl;
         cout << "a) Agregar router" << endl;
         cout << "b) Remover router" << endl;
-        cout << "c) Visualizar tablas de red" << endl;
-        cout << "d) Ruta optima para enviar un paquete" << endl;
-        cout << "e) Volver al menu principal" << endl;
+        cout << "c) Modificar el costo de un enlace" << endl;
+        cout << "d) Visualizar tablas de red (general y optimizada)" << endl;
+        cout << "e) Ruta optima para enviar un paquete" << endl;
+        cout << "f) Volver al menu principal" << endl;
         cout << endl;
         cout << "Opcion: ";
 
@@ -145,8 +146,8 @@ void Simulator::menu()
 
             if (network.routerIdAvailable(id)) {
 
-                if (network.getRoutersAddress()->size() > 1)
-                    cout << endl << endl << "Ingrese peso para el enlace entre routers"
+                if (network.getRoutersAddress()->size() > 0)
+                    cout << endl << "Ingrese peso para el enlace entre routers"
                                             "\nsi no se conectan o no directamente ingrese x " << endl << endl;
                 else
                     cout << endl << "Se debe ingresar mas routers para empezar a agregar costos entre enlaces" << endl;
@@ -184,7 +185,11 @@ void Simulator::menu()
 
         case 'b':
         {
-            checkRoutersQuantity();
+            if (network.getRoutersAddress()->size() == 0) {
+                cout << endl << "No hay routers en la red" << endl;
+                cout << "Cantidad de routers actuales: " << network.getRoutersAddress()->size() << endl;
+                menu();
+            }
 
             string id;
             cout << "Ingrese ID de router a remover: ";
@@ -201,6 +206,43 @@ void Simulator::menu()
             break;
 
         case 'c':
+        {
+            checkRoutersQuantity();
+
+            string origin, route;
+            string weight;
+
+            cout << "Ingrese ID de origen: ";
+            cin >> origin;
+
+            if (!network.routerIdAvailable(origin)) {
+
+                string destination;
+                cout << "Ingrese ID de destino: ";
+                cin >> destination;
+
+                if (!network.routerIdAvailable(destination)) {
+
+                    cout << "\n\nSi desea eliminar la conexion ingrese x" << endl;
+                    cout << "Ingrese costo: ";
+                    cin >> weight;
+
+                    if (weight == "x")
+                        network.setLinkCost(&origin, &destination, -1);
+                    else
+                        network.setLinkCost(&origin, &destination, atoi(weight.c_str()));
+
+                    cout << "\n\nEnlace modificado con exito" << endl;
+
+                } else
+                    cout << endl << "El ID " << destination << " no existe en la red" << endl;
+
+            } else
+                cout << endl << "El ID " << origin << " no existe en la red" << endl;
+        }
+            break;
+
+        case 'd':
         {
             checkRoutersQuantity();
 
@@ -239,7 +281,7 @@ void Simulator::menu()
         }
             break;
 
-        case 'd':
+        case 'e':
         {
             checkRoutersQuantity();
 
@@ -259,8 +301,12 @@ void Simulator::menu()
 
                     network.getOptimalRoute(origin, destination, &weight, &route);
 
-                    cout << endl << "Ruta optima: " << route << endl;
-                    cout << "Costo: " << weight << endl;
+                    if (weight != -1) {
+
+                        cout << endl << "Ruta optima: " << route << endl;
+                        cout << "Costo: " << weight << endl;
+                    } else
+                        cout << endl << "No hay niguna conexion posible entre los routers" << endl;
 
 
                 } else
@@ -271,7 +317,7 @@ void Simulator::menu()
         }
             break;
 
-        case 'e':
+        case 'f':
         {
             network.getRoutersAddress()->clear();
             start();

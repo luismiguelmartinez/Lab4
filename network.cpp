@@ -122,6 +122,8 @@ map<string, int> Network::getOptimalRouteTable(string id)
 
         if (i == 0) {
 
+            unsigned aux = 0;
+
             routeTable = Routers[id].getRouteTableAddress();
 
             for (it2 = routeTable->begin(); it2 != routeTable->end(); it2++) {
@@ -130,13 +132,21 @@ map<string, int> Network::getOptimalRouteTable(string id)
                     stepA[it2->first] = Dijkstra(it2->second, id, true);
                 } else
                     stepA[it2->first] = Dijkstra(it2->second, id);
+
+                if(it2->second == -1)
+                    aux++;
             }
+
+            // Si en la taba de cos
+            if (aux == (Routers.size() - 1))
+                return *routeTable;
 
         } else {
 
             map <string, Dijkstra>::iterator it;
 
             string def_tag = findMinValue(&stepA);
+
             stepA[def_tag].setVisited(true);
 
             routeTable = Routers[def_tag].getRouteTableAddress();
@@ -208,6 +218,12 @@ map<string, int> Network::getOptimalRouteTable(string id)
     return optimalRouteTable;
 }
 
+void Network::setLinkCost(string *origin, string *destination, int weight)
+{
+    Routers[*origin].setWeightNode(destination, &weight);
+    Routers[*destination].setWeightNode(origin, &weight);
+}
+
 string Network::findMinValue(map<string, Dijkstra> *weightTable)
 {
     int aux = -1;
@@ -223,12 +239,8 @@ string Network::findMinValue(map<string, Dijkstra> *weightTable)
         }
     }
 
-    //si no se encontro algun valor como minimo significa que el
-    //router no esta conectado a ningun otro
-
     if (aux == -1) {
-        node = weightTable->begin()->first;
-        return node;
+        return weightTable->begin()->first;
     }
 
     for (it = weightTable->begin(); it != weightTable->end(); it++) {
@@ -261,18 +273,15 @@ void Network::addRouter(string id, Router router)
 
 void Network::removeRouter(string id)
 {
+    // Se elimina el router con la clave con la cual fue almacenado
+    Routers.erase(id);
+
+    // Se recorre todos los routers para que en cada uno de ellos se elimine
     map <string, Router>::iterator it;
-
-    // Se recorre todo el map de routers, para el router que se desea eliminar se entrega
-    // el iterador a la funcion Routers.erase que se encarga de eliminar ese elemento en
-    // el mapa, para todos los demas se hara un proceso analogo pero eliminando ese nodo
-    for (it = Routers.begin(); it != Routers.end(); it++) {
-
-        if (it->first == id)
-            Routers.erase(it);
-        else
+    for (it = Routers.begin(); it != Routers.end(); it++)
             it->second.removeNode(id);
-    }
+
+
 }
 
 bool Network::routerIdAvailable(string id)
