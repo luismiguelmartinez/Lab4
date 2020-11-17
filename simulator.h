@@ -12,7 +12,7 @@ private:
 
     void createNetwork();
     void loadNetwork();
-    Router dataToRouter (string data);
+    void dataToRouter(string data, string *id, map<string, int> *routingTable);
     void menu();
 
 public:

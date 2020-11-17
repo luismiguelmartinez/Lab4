@@ -94,8 +94,6 @@ void Network::getOptimalRoute(string origin, string destination, int *weight, st
             stepA = stepB;
             stepB.clear();
         }
-
-        routeTable->clear();
     }
 
     // Costo de la ruta
@@ -199,8 +197,6 @@ map<string, int> Network::getOptimalRouteTable(string id)
             stepA = stepB;
             stepB.clear();
         }
-
-        routeTable->clear();
     }
 
     map <string, int> optimalRouteTable;

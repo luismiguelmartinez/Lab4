@@ -2,7 +2,7 @@
 
 void Simulator::createNetwork()
 {
-
+    menu();
 }
 
 void Simulator::loadNetwork()
@@ -18,19 +18,23 @@ void Simulator::loadNetwork()
         if (!fin.is_open())
             throw '1';
 
+        string id;
+        map <string, int> routingTable;
+
         fin.seekg(0);
-        for (string line; getline(fin, line); ) {
+        for (string data; getline(fin, data); ) {
 
-            Router router = dataToRouter(line);
-
-            network.addRouter(router.getID(), router);
+            dataToRouter(data, &id, &routingTable);
+            network.addRouter(id, routingTable);
+            routingTable.clear();
+            id.clear();
         }
 
         fin.close();
 
     }  catch (char c) {
         if (c == '1') {
-            cout << " ------> Error archivo de lectura" << endl;
+            cout << " ------> Error archivo de lectura, verifique que el nombre este correcto" << endl;
             start();
         }
         else
@@ -38,25 +42,22 @@ void Simulator::loadNetwork()
     }
 
 
-    if(network.getRoutersAddress()->size() > 1) {
-
+    if(network.getRoutersAddress()->size() > 1)
         menu();
-    } else {
-        cout << "No se encontraron datos de una red en el archivo" << endl;
-    }
+    else
+        cout << endl << "No se encontraron datos de una red en el archivo" << endl;
 }
 
-Router Simulator::dataToRouter(string data)
+void Simulator::dataToRouter(string data, string *id, map <string, int> *routingTable)
 {
-    map <string, int> routeTable;
     bool lastNode;
-    string aux1, aux2, temp;
+    string aux1, aux2;
 
 
     for (unsigned i = 0; data.length(); i++) {
 
         if (data.substr(i, 1) != " ")
-            temp += data.substr(i, 1);
+            *id += data.substr(i, 1);
         else {
             data = data.substr(++i);
             break;
@@ -88,10 +89,11 @@ Router Simulator::dataToRouter(string data)
             }
         }
 
+
         if (aux2 == "x" )
-            routeTable[aux1] = -1;
+            routingTable->insert(pair <string, int> (aux1, -1));
         else
-            routeTable[aux1] = atoi(aux2.c_str());
+            routingTable->insert(pair <string, int> (aux1, atoi(aux2.c_str())));
 
         for (unsigned i = 0; i < data.length(); i++) {
 
@@ -108,9 +110,6 @@ Router Simulator::dataToRouter(string data)
         aux1.clear();
         aux2.clear();
     }
-
-    return Router(temp, routeTable);
-
 }
 
 void Simulator::menu()
@@ -129,162 +128,172 @@ void Simulator::menu()
 
     cin >> option;
 
-    switch(option) {
+    if (network.getRoutersAddress()->size() > 1) {
 
-    case 'a':
-    {
-        string id;
-        cout << "Ingrese ID de router a agregar: ";
-        cin >> id;
+        switch(option) {
 
-        if (network.routerIdAvailable(id)) {
+        case 'a':
+        {
+            string id;
+            cout << "Ingrese ID de router a agregar: ";
+            cin >> id;
 
-            cout << endl << endl << "Ingrese peso para el enlace entre routers\nsi no se conectan o no directamente ingrese x " << endl << endl;
+            if (network.routerIdAvailable(id)) {
 
-            map <string, Router> *routers = network.getRoutersAddress();
-            map <string, Router>::iterator it;
-            map <string, int> routeTable;
-            string value;
+                cout << endl << endl << "Ingrese peso para el enlace entre routers\nsi no se conectan o no directamente ingrese x " << endl << endl;
 
-            routeTable[id] = 0;
+                map <string, Router> *routers = network.getRoutersAddress();
+                map <string, Router>::iterator it;
+                map <string, int> routeTable;
+                string value;
 
-            for (it = routers->begin(); it != routers->end(); it++) {
+                routeTable[id] = 0;
 
-                if (it->first != id) {
+                for (it = routers->begin(); it != routers->end(); it++) {
 
-                    cout << id << "->" << it->first << " ";
-                    cin >> value;
+                    if (it->first != id) {
 
-                    if (value == "x")
-                        routeTable[it->first] = -1;
-                    else
-                        routeTable[it->first] = atoi(value.c_str());
+                        cout << id << "->" << it->first << " ";
+                        cin >> value;
+
+                        if (value == "x")
+                            routeTable[it->first] = -1;
+                        else
+                            routeTable[it->first] = atoi(value.c_str());
+                    }
                 }
+
+                network.addRouter(id, Router(routeTable));
+
+                cout << endl << "Router agregado con exito" << endl;
+                menu();
+
+            } else {
+                cout << endl << "El ID ingresado ya se encuentra asignado" << endl;
+                menu();
             }
-
-            network.addRouter(id, Router(routeTable));
-
-            cout << endl << "Router agregado con exito" << endl;
-            menu();
-
-        } else {
-            cout << "El ID ingresado ya se encuentra asignado" << endl;
-            menu();
         }
-    }
-        break;
+            break;
 
-    case 'b':
-    {
-        string id;
-        cout << "Ingrese ID de router a remover: ";
-        cin >> id;
+        case 'b':
+        {
+            string id;
+            cout << "Ingrese ID de router a remover: ";
+            cin >> id;
 
-        if (!network.routerIdAvailable(id)) {
+            if (!network.routerIdAvailable(id)) {
 
-            network.removeRouter(id);
-            cout << endl << "Router removido con exito" << endl;
-            menu();
-
-        } else {
-
-            cout << "El ID ingresado no existe en la red" << endl;
-            menu();
-        }
-    }
-        break;
-
-    case 'c':
-    {
-        string id;
-        cout << "Ingrese ID del router para el cual desea visualizar la tabla: ";
-        cin >> id;
-
-        if (!network.routerIdAvailable(id)) {
-
-            map <string, int>::iterator it;
-            map <string, int> *routeTable = (network.getRoutersAddress()->at(id)).getRouteTableAddress();
-
-            cout << endl << "Tabla router " << id << endl << endl;
-
-            for (it = routeTable->begin(); it != routeTable->end(); it++) {
-
-                if (it->second >= 0)
-                    cout << id << "->" << it->first << " " << it->second << endl;
-                else
-                    cout << id << "->" << it->first << " x" << endl;
-            }
-
-            cout << endl << endl << "Tabla optimizada para router " << id << endl << endl;
-
-            routeTable->clear();
-            *routeTable = network.getOptimalRouteTable(id);
-
-            for (it = routeTable->begin(); it != routeTable->end(); it++) {
-
-                if (it->second >= 0)
-                    cout << id << "->" << it->first << " " << it->second << endl;
-                else
-                    cout << id << "->" << it->first << " x" << endl;
-            }
-
-            menu();
-
-        } else {
-
-            cout << "El ID de router ingresado no existe en la red" << endl;
-            menu();
-        }
-    }
-        break;
-
-    case 'd':
-    {
-        string origin, route;
-        int weight;
-
-        cout << "Ingrese ID de origen: ";
-        cin >> origin;
-
-        if (!network.routerIdAvailable(origin)) {
-
-            string destination;
-            cout << "Ingrese ID de destino: ";
-            cin >> destination;
-
-            if (!network.routerIdAvailable(destination)) {
-
-                network.getOptimalRoute(origin, destination, &weight, &route);
-
-                cout << endl << "Ruta optima: " << route << endl;
-                cout << "Costo: " << weight << endl;
+                network.removeRouter(id);
+                cout << endl << "Router removido con exito" << endl;
                 menu();
 
             } else {
 
-                cout << "El ID " << destination << " no existe en la red" << endl;
+                cout << endl << "El ID ingresado no existe en la red" << endl;
                 menu();
             }
-
-        } else {
-
-            cout << "El ID " << origin << " no existe en la red" << endl;
-            menu();
         }
-    }
-        break;
+            break;
 
-    case 'e':
-    {
-        network.getRoutersAddress()->clear();
-        start();
-    }
-        break;
+        case 'c':
+        {
+            string id;
+            cout << "Ingrese ID del router para el cual desea visualizar la tabla: ";
+            cin >> id;
 
-    default:
-        cout << "Opcion no valida" << endl;
-        menu();
+            if (!network.routerIdAvailable(id)) {
 
+                map <string, int>::iterator it;
+                map <string, int> *routingTable = (network.getRoutersAddress()->at(id)).getRouteTableAddress();
+
+                cout << endl << "Tabla para router " << id << endl << endl;
+
+                for (it = routingTable->begin(); it != routingTable->end(); it++) {
+
+                    if (it->second >= 0)
+                        cout << id << "->" << it->first << " " << it->second << endl;
+                    else
+                        cout << id << "->" << it->first << " x" << endl;
+                }
+
+                cout << endl << endl << "Tabla optimizada para router " << id << endl << endl;
+
+                map <string, int> optimalRoutingTable = network.getOptimalRouteTable(id);
+
+                for (it = optimalRoutingTable.begin(); it != optimalRoutingTable.end(); it++) {
+
+                    if (it->second >= 0)
+                        cout << id << "->" << it->first << " " << it->second << endl;
+                    else
+                        cout << id << "->" << it->first << " x" << endl;
+                }
+
+                menu();
+
+            } else {
+
+                cout << endl << "El ID de router ingresado no existe en la red" << endl;
+                menu();
+            }
+        }
+            break;
+
+        case 'd':
+        {
+            string origin, route;
+            int weight;
+
+            cout << "Ingrese ID de origen: ";
+            cin >> origin;
+
+            if (!network.routerIdAvailable(origin)) {
+
+                string destination;
+                cout << "Ingrese ID de destino: ";
+                cin >> destination;
+
+                if (!network.routerIdAvailable(destination)) {
+
+                    network.getOptimalRoute(origin, destination, &weight, &route);
+
+                    cout << endl << "Ruta optima: " << route << endl;
+                    cout << "Costo: " << weight << endl;
+                    menu();
+
+                } else {
+
+                    cout << endl << "El ID " << destination << " no existe en la red" << endl;
+                    menu();
+                }
+
+            } else {
+
+                cout << endl << "El ID " << origin << " no existe en la red" << endl;
+                menu();
+            }
+        }
+            break;
+
+        case 'e':
+        {
+            network.getRoutersAddress()->clear();
+            start();
+        }
+            break;
+
+        default:
+            cout << "Opcion no valida" << endl;
+            menu();
+
+        }
+    } else if (network.getRoutersAddress()->size() == 0) {
+
+        cout << endl << "No hay routers en la red" << endl;
+        cout << "Cantidad de routers actuales: " << network.getRoutersAddress()->size() << endl;
+    } else {
+
+        cout << endl << "Debe de existir mas de un router en la red" << endl;
+        cout << "Cantidad de routers actuales: " << network.getRoutersAddress()->size() << endl;
     }
 }
 
